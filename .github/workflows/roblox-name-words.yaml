@@ -1,0 +1,36 @@
+name:
+
+on:
+  workflow_dispatch: # Manual trigger
+  push:
+    paths:
+      - ./scripts/roblox_name_spec.py
+      - words_alpha.txt
+
+jobs:
+  run-script-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11" # Or your required version
+
+      - name: Run script
+        run: python ./scripts/roblox_name_spec.py ./words_alpha.txt
+
+      - name: Commit and push result
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add roblox_name_words.txt
+          git commit -m "Update roblox_name_words.txt [auto]" || echo "No changes to commit"
+          git push
+        env:
+          # This is required for push permissions
+          # GITHUB_TOKEN is provided by GitHub Actions automatically
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
